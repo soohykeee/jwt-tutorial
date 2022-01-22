@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * UserDetailsService를 구현한 CustomUserDetailsService 클래스 생성
+ * UserDetailsService 를 구현한 CustomUserDetailsService 클래스 생성
  */
 @Component("userDetailsService")
 public class CustomUserDetailsService implements UserDetailsService {
@@ -36,6 +36,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(username + " -> 데이터베이스에서 찾을 수 없습니다."));
     }
 
+    /** entity - User 정보가 활성화 되어있다면 해당 정보를 받아서 userdetails - User 에 넣어서 return 한다.*/
     private org.springframework.security.core.userdetails.User createUser(String username, User user) {
         if (!user.isActivated()) {
             throw new RuntimeException(username + " -> 활성화되어 있지 않습니다.");

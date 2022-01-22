@@ -22,32 +22,31 @@ import org.springframework.web.filter.CorsFilter;
  * 추가적인 설정을 위해서 WebSecurityConfigurer 을 implements 하거나
  * WebSecurityConfigurerAdapter 를 extends 하는 방법이 있다.
  */
-
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)  // @PreAuthorize 어노테이션을 메소드단위로 추가하기위해서 적용
+@EnableGlobalMethodSecurity(prePostEnabled = true)  /** @PreAuthorize 어노테이션을 메소드단위로 추가하기위해서 적용 */
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
     private final TokenProvider tokenProvider;
-//    private final CorsFilter corsFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     public SecurityConfig(
             TokenProvider tokenProvider,
-//            CorsFilter corsFilter,
             JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
             JwtAccessDeniedHandler jwtAccessDeniedHandler
     ) {
         this.tokenProvider = tokenProvider;
-//        this.corsFilter = corsFilter;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
         this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
     }
 
+    /** 암호 복호화위해 존재하는 bean */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /** 해당 메소드는 무시해도 됌. 해당 도메인에는 무시되도록 설정 */
     @Override
     public void configure(WebSecurity web) {
         web.ignoring()
@@ -63,8 +62,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity
                 /** token을 사용하는 방식이기 때문에 csrf를 disable합니다. */
                 .csrf().disable()
-
-//                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
 
                 /** Exception 핸들링할때 우리가 만들었던 클래스들을 추가해준다. */
                 .exceptionHandling()
@@ -89,6 +86,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/authenticate").permitAll()
                 .antMatchers("/api/signup").permitAll()
 
+                /** 위에 permit 한 도메인 뺴고는 접근 가능한 token 을 가진 유저만 접근가능하도록 */
                 .anyRequest().authenticated()
 
                 /** JwtFilter 를 addFilterBefore 로 등록했던 JwtSecurityConfig 클래스도 적용 */
@@ -96,13 +94,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .apply(new JwtSecurityConfig(tokenProvider));
     }
 
-
-/*    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-                .authorizeRequests()    // HttpServletRequest를 사용하는 요청들에 대한 접근제한을 설정하겠다는 의미
-                .antMatchers("/api/hello").permitAll()  ///api/hello에 대한 요청은 인증없이 접근을 허용하겠다는 의미
-                .anyRequest().authenticated();  // 나머지 요청들은 모두 인증이되어야 한다는 의미
-    }
-    */
 }

@@ -18,9 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
-/**
- *
- */
 @RestController
 @RequestMapping("/api")
 public class AuthController {
@@ -41,18 +38,16 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
 
         /**
-         * authenticationToken 을 이용해서 Authentication 객체를 생성하려고 authenticate 메소드가 실행될 때,
+         * authenticationToken 을 이용해서 Authentication 객체를 생성하려고 authenticate() 메소드가 실행될 때,
          * loadUserByUsername 메소드가 실행된다.
-         *  -> 이 결과값을 authentication 에 생성하고, 이를 SecurityContext에 저장하고,
-         *  authentication 을 createToken 메소드를 통해서 jwt Token 을 생성한다.
+         *  -> 이 결과값을 authentication 에 생성하고, 이를 SecurityContext 에 저장하고,
+         *  authentication 을 createToken() 메소드를 통해서 jwt 에 Token 을 생성한다.
          */
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.createToken(authentication);
 
-        /**
-         * jwt Token 을 Response Header에도 넣어주고, TokenDto 를 이용해서 Response Body 에도 넣어서 리턴한다.
-         */
+        /** jwt Token 을 Response Header 에도 넣어주고, TokenDto 를 이용해서 Response Body 에도 넣어서 리턴한다. */
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
         return new ResponseEntity<>(new TokenDto(jwt), httpHeaders, HttpStatus.OK);

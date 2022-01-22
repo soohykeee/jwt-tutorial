@@ -26,14 +26,15 @@ public class UserService {
     @Transactional
     public UserDto signup(UserDto userDto) {
         if (userRepository.findOneWithAuthoritiesByUsername(userDto.getUsername()).orElse(null) != null) {
-//            throw new DuplicateMemberException("이미 가입되어 있는 유저입니다.");
             throw new RuntimeException("이미 가입되어 있는 유저입니다.");
         }
 
+        /** builder 를 이용해 권한 정보 생성 */
         Authority authority = Authority.builder()
                 .authorityName("ROLE_USER")
                 .build();
 
+        /** builder 를 이용해 권한정보와 유저정보를 생성 */
         User user = User.builder()
                 .username(userDto.getUsername())
                 .password(passwordEncoder.encode(userDto.getPassword()))

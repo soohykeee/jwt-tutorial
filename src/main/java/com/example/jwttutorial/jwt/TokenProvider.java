@@ -54,15 +54,19 @@ public class TokenProvider implements InitializingBean {
 
     /**
      * Authentication 객체의 권한정보를 이용해서 토큰을 생성하는 createToken 메소드
+     * Authentication -> 인가 (인증된 사용자가 요청한 자원에 접근 가능한지를 결정하는 절차)
      */
     public String createToken(Authentication authentication) {
+        /** 권한부여..(?) */
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
+        /** application.yml에서 설정했던 만료시간 설정 */
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.tokenValidityInMilliseconds);
 
+        /** builder를 사용해 위의 정보들로 채운 Token을 만든 후 return */
         return Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
@@ -74,6 +78,8 @@ public class TokenProvider implements InitializingBean {
     /**
      * Token 에 담겨있는 정보를 이용해 Authentication 객체를 리턴하는 메소드 생성
      * Token 으로 Claim 을 만들고, 이를 이용해 유저객체를 만들어서 최종적으로 Authentication 객체를 리턴
+     * Claim -> 사용자 정보나 데이터 속성 등을 의미한다.
+     * 위의 createToken 메소드 거꾸로라고 생각하면 편할듯 ?
      */
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts

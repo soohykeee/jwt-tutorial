@@ -11,6 +11,7 @@ import java.io.IOException;
 /**
  * 유효한 자격증명을 제공하지 않고 접근하려 할때, 401 Unauthorized 에러를 리턴할
  * JwtAuthenticationEntryPoint 클래스 생성
+ * SecurityConfig 에 exceptionHandler 로 등록하기 위해 작성
  */
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
